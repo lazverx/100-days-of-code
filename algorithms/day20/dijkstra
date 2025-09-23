@@ -1,0 +1,74 @@
+// Dijkstra's Algorithm – Shortest Path
+// Date: 2025-09-16
+
+class Graph {
+  constructor() {
+    this.nodes = new Set();
+    this.edges = new Map();
+  }
+
+  addNode(node) {
+    this.nodes.add(node);
+    if (!this.edges.has(node)) {
+      this.edges.set(node, new Map());
+    }
+  }
+
+  addEdge(source, destination, weight) {
+    this.addNode(source);
+    this.addNode(destination);
+    this.edges.get(source).set(destination, weight);
+    this.edges.get(destination).set(source, weight); // Undirected graph
+  }
+
+  dijkstra(startNode) {
+    let distances = new Map();
+    let visited = new Set();
+    let pq = new Map();
+
+    // Initialize distances
+    this.nodes.forEach(node => {
+      distances.set(node, Infinity);
+      pq.set(node, Infinity);
+    });
+    distances.set(startNode, 0);
+    pq.set(startNode, 0);
+
+    while (pq.size > 0) {
+      // Pick node with smallest distance
+      let current = [...pq.entries()].reduce((a, b) => (a[1] < b[1] ? a : b))[0];
+      pq.delete(current);
+
+      if (visited.has(current)) continue;
+      visited.add(current);
+
+      // Update neighbors
+      this.edges.get(current).forEach((weight, neighbor) => {
+        if (!visited.has(neighbor)) {
+          let newDist = distances.get(current) + weight;
+          if (newDist < distances.get(neighbor)) {
+            distances.set(neighbor, newDist);
+            pq.set(neighbor, newDist);
+          }
+        }
+      });
+    }
+
+    return distances;
+  }
+}
+
+// Example usage
+const g = new Graph();
+g.addEdge("A", "B", 4);
+g.addEdge("A", "C", 2);
+g.addEdge("B", "C", 1);
+g.addEdge("B", "D", 5);
+g.addEdge("C", "D", 8);
+g.addEdge("C", "E", 10);
+g.addEdge("D", "E", 2);
+g.addEdge("D", "Z", 6);
+g.addEdge("E", "Z", 3);
+
+console.log("Shortest distances from node A:");
+console.log(g.dijkstra("A"));
